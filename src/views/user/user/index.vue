@@ -198,9 +198,6 @@
         <el-form-item label="头像地址" prop="avatar">
           <file-upload v-model="form.avatar"/>
         </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password" placeholder="请输入密码" />
-        </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
         </el-form-item>
