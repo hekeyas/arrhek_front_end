@@ -25,7 +25,7 @@
             type="primary"
             icon="Cloudy"
             plain
-            @click="goTarget('#')"
+            @click="goTarget('https://github.com/hekeyas/arrhek_front_end')"
             >访问码云</el-button
           >
           <el-button

@@ -9,10 +9,10 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="课程学科" prop="subject">
-        <el-select v-model="queryParams.subject" placeholder="请选择课程学科" clearable>
+      <el-form-item label="课程分类" prop="learningGoal">
+        <el-select v-model="queryParams.learningGoal" placeholder="请选择课程分类" clearable>
           <el-option
-            v-for="dict in course_subject"
+            v-for="dict in learning_goal"
             :key="dict.value"
             :label="dict.label"
             :value="dict.value"
@@ -27,10 +27,28 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="适用人群" prop="applicablePerson">
+      <el-form-item label="价格" prop="price">
         <el-input
-          v-model="queryParams.applicablePerson"
-          placeholder="请输入适用人群"
+          v-model="queryParams.price"
+          placeholder="请输入价格"
+          clearable
+          @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="教学风格" prop="learningStyle">
+        <el-select v-model="queryParams.learningStyle" placeholder="请选择教学风格" clearable>
+          <el-option
+            v-for="dict in learning_style"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="课程介绍" prop="info">
+        <el-input
+          v-model="queryParams.info"
+          placeholder="请输入课程介绍"
           clearable
           @keyup.enter="handleQuery"
         />
@@ -87,15 +105,29 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="课程id" align="center" prop="id" />
       <el-table-column label="课程编码" align="center" prop="code" />
-      <el-table-column label="课程学科" align="center" prop="subject">
+      <el-table-column label="课程分类" align="center" prop="learningGoal">
         <template #default="scope">
-          <dict-tag :options="course_subject" :value="scope.row.subject"/>
+          <dict-tag :options="learning_goal" :value="scope.row.learningGoal"/>
         </template>
       </el-table-column>
       <el-table-column label="课程名称" align="center" prop="name" />
       <el-table-column label="价格" align="center" prop="price" />
-      <el-table-column label="适用人群" align="center" prop="applicablePerson" />
+      <el-table-column label="教学风格" align="center" prop="learningStyle">
+        <template #default="scope">
+          <dict-tag :options="learning_style" :value="scope.row.learningStyle"/>
+        </template>
+      </el-table-column>
       <el-table-column label="课程介绍" align="center" prop="info" />
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+        <template #default="scope">
+          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
+        <template #default="scope">
+          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['course:course:edit']">修改</el-button>
@@ -105,7 +137,7 @@
     </el-table>
     
     <pagination
-      v-show="total0"
+      v-show="total>0"
       :total="total"
       v-model:page="queryParams.pageNum"
       v-model:limit="queryParams.pageSize"
@@ -118,10 +150,10 @@
         <el-form-item label="课程编码" prop="code">
           <el-input v-model="form.code" placeholder="请输入课程编码" />
         </el-form-item>
-        <el-form-item label="课程学科" prop="subject">
-          <el-select v-model="form.subject" placeholder="请选择课程学科">
+        <el-form-item label="课程分类" prop="learningGoal">
+          <el-select v-model="form.learningGoal" placeholder="请选择课程分类">
             <el-option
-              v-for="dict in course_subject"
+              v-for="dict in learning_goal"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -134,8 +166,15 @@
         <el-form-item label="价格" prop="price">
           <el-input v-model="form.price" placeholder="请输入价格" />
         </el-form-item>
-        <el-form-item label="适用人群" prop="applicablePerson">
-          <el-input v-model="form.applicablePerson" placeholder="请输入适用人群" />
+        <el-form-item label="教学风格" prop="learningStyle">
+          <el-select v-model="form.learningStyle" placeholder="请选择教学风格">
+            <el-option
+              v-for="dict in learning_style"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="课程介绍" prop="info">
           <el-input v-model="form.info" placeholder="请输入课程介绍" />
@@ -155,7 +194,7 @@
 import { listCourse, getCourse, delCourse, addCourse, updateCourse } from "@/api/course/course";
 
 const { proxy } = getCurrentInstance();
-const { course_subject } = proxy.useDict('course_subject');
+const { learning_style, learning_goal } = proxy.useDict('learning_style', 'learning_goal');
 
 const courseList = ref([]);
 const open = ref(false);
@@ -173,16 +212,18 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     code: null,
-    subject: null,
+    learningGoal: null,
     name: null,
-    applicablePerson: null,
+    price: null,
+    learningStyle: null,
+    info: null,
   },
   rules: {
     code: [
       { required: true, message: "课程编码不能为空", trigger: "blur" }
     ],
-    subject: [
-      { required: true, message: "课程学科不能为空", trigger: "change" }
+    learningGoal: [
+      { required: true, message: "课程分类不能为空", trigger: "change" }
     ],
     name: [
       { required: true, message: "课程名称不能为空", trigger: "blur" }
@@ -190,11 +231,8 @@ const data = reactive({
     price: [
       { required: true, message: "价格不能为空", trigger: "blur" }
     ],
-    applicablePerson: [
-      { required: true, message: "适用人群不能为空", trigger: "blur" }
-    ],
-    info: [
-      { required: true, message: "课程介绍不能为空", trigger: "blur" }
+    learningStyle: [
+      { required: true, message: "教学风格不能为空", trigger: "change" }
     ],
   }
 });
@@ -222,10 +260,10 @@ function reset() {
   form.value = {
     id: null,
     code: null,
-    subject: null,
+    learningGoal: null,
     name: null,
     price: null,
-    applicablePerson: null,
+    learningStyle: null,
     info: null,
     createTime: null,
     updateTime: null

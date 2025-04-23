@@ -27,38 +27,6 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="最后登录IP" prop="loginIp">
-        <el-input
-          v-model="queryParams.loginIp"
-          placeholder="请输入最后登录IP"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="最后登录时间" prop="loginDate">
-        <el-date-picker clearable
-          v-model="queryParams.loginDate"
-          type="date"
-          value-format="YYYY-MM-DD"
-          placeholder="请选择最后登录时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="更新者" prop="updateBy">
-        <el-input
-          v-model="queryParams.updateBy"
-          placeholder="请输入更新者"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="更新时间" prop="updateTime">
-        <el-date-picker clearable
-          v-model="queryParams.updateTime"
-          type="date"
-          value-format="YYYY-MM-DD"
-          placeholder="请选择更新时间">
-        </el-date-picker>
-      </el-form-item>
       <el-form-item label="年龄" prop="age">
         <el-input
           v-model="queryParams.age"
@@ -68,12 +36,24 @@
         />
       </el-form-item>
       <el-form-item label="学习目标" prop="learningGoal">
-        <el-input
-          v-model="queryParams.learningGoal"
-          placeholder="请输入学习目标"
-          clearable
-          @keyup.enter="handleQuery"
-        />
+        <el-select v-model="queryParams.learningGoal" placeholder="请选择学习目标" clearable>
+          <el-option
+            v-for="dict in learning_goal"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="学习风格" prop="learningStyle">
+        <el-select v-model="queryParams.learningStyle" placeholder="请选择学习风格" clearable>
+          <el-option
+            v-for="dict in learning_style"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -128,32 +108,24 @@
       <el-table-column label="用户ID" align="center" prop="userId" />
       <el-table-column label="用户账号" align="center" prop="userName" />
       <el-table-column label="用户昵称" align="center" prop="nickName" />
-      <el-table-column label="用户类型" align="center" prop="userType" />
-      <el-table-column label="用户邮箱" align="center" prop="email" />
-      <el-table-column label="手机号码" align="center" prop="phonenumber" />
       <el-table-column label="用户性别" align="center" prop="sex">
         <template #default="scope">
           <dict-tag :options="sys_user_sex" :value="scope.row.sex"/>
         </template>
       </el-table-column>
-      <el-table-column label="头像地址" align="center" prop="avatar" />
       <el-table-column label="帐号状态" align="center" prop="status" />
-      <el-table-column label="最后登录IP" align="center" prop="loginIp" />
-      <el-table-column label="最后登录时间" align="center" prop="loginDate" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.loginDate, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="更新者" align="center" prop="updateBy" />
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="年龄" align="center" prop="age" />
-      <el-table-column label="学习目标" align="center" prop="learningGoal" />
-      <el-table-column label="学习风格" align="center" prop="learningStyle" />
+      <el-table-column label="学习目标" align="center" prop="learningGoal">
+        <template #default="scope">
+          <dict-tag :options="learning_goal" :value="scope.row.learningGoal"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="学习风格" align="center" prop="learningStyle">
+        <template #default="scope">
+          <dict-tag :options="learning_style" :value="scope.row.learningStyle"/>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['user:user:edit']">修改</el-button>
@@ -179,12 +151,6 @@
         <el-form-item label="用户昵称" prop="nickName">
           <el-input v-model="form.nickName" placeholder="请输入用户昵称" />
         </el-form-item>
-        <el-form-item label="用户邮箱" prop="email">
-          <el-input v-model="form.email" placeholder="请输入用户邮箱" />
-        </el-form-item>
-        <el-form-item label="手机号码" prop="phonenumber">
-          <el-input v-model="form.phonenumber" placeholder="请输入手机号码" />
-        </el-form-item>
         <el-form-item label="用户性别" prop="sex">
           <el-select v-model="form.sex" placeholder="请选择用户性别">
             <el-option
@@ -195,9 +161,6 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="头像地址" prop="avatar">
-          <file-upload v-model="form.avatar"/>
-        </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
         </el-form-item>
@@ -205,7 +168,24 @@
           <el-input v-model="form.age" placeholder="请输入年龄" />
         </el-form-item>
         <el-form-item label="学习目标" prop="learningGoal">
-          <el-input v-model="form.learningGoal" placeholder="请输入学习目标" />
+          <el-select v-model="form.learningGoal" placeholder="请选择学习目标">
+            <el-option
+              v-for="dict in learning_goal"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="学习风格" prop="learningStyle">
+          <el-select v-model="form.learningStyle" placeholder="请选择学习风格">
+            <el-option
+              v-for="dict in learning_style"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -222,7 +202,7 @@
 import { listUser, getUser, delUser, addUser, updateUser } from "@/api/user/user";
 
 const { proxy } = getCurrentInstance();
-const { sys_user_sex } = proxy.useDict('sys_user_sex');
+const { learning_style, sys_user_sex, learning_goal } = proxy.useDict('learning_style', 'sys_user_sex', 'learning_goal');
 
 const userList = ref([]);
 const open = ref(false);
@@ -241,14 +221,8 @@ const data = reactive({
     pageSize: 10,
     userName: null,
     nickName: null,
-    userType: null,
     sex: null,
-    avatar: null,
     status: null,
-    loginIp: null,
-    loginDate: null,
-    updateBy: null,
-    updateTime: null,
     age: null,
     learningGoal: null,
     learningStyle: null
