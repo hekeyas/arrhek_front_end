@@ -42,5 +42,3 @@ export function delCourse(id) {
     method: 'delete'
   })
 }
-
-

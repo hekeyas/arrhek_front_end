@@ -128,10 +128,21 @@
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="课程图片" align="center" prop="avator" width="100">
+        <template #default="scope">
+          <image-preview :src="scope.row.avator" :width="50" :height="50"/>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['course:course:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['course:course:remove']">删除</el-button>
+          <el-button link type="primary" icon="Edit" style="width: 80px; text-align: center;"
+            @click="handleUpdate(scope.row)" v-hasPermi="['course:course:edit']">修改</el-button>
+          <br/>
+          <el-button link type="primary" icon="Delete" style="width: 80px; text-align: center;"
+            @click="handleDelete(scope.row)" v-hasPermi="['course:course:remove']">删除</el-button>
+          <br/>
+          <el-button link type="primary" icon="View" style="width: 80px; text-align: center;"
+            @click="$router.push({ path: '/detail', query: { id: scope.row.id } })">详情</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -178,6 +189,9 @@
         </el-form-item>
         <el-form-item label="课程介绍" prop="info">
           <el-input v-model="form.info" placeholder="请输入课程介绍" />
+        </el-form-item>
+        <el-form-item label="课程图片" prop="avator">
+          <image-upload v-model="form.avator"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -243,6 +257,7 @@ const { queryParams, form, rules } = toRefs(data);
 function getList() {
   loading.value = true;
   listCourse(queryParams.value).then(response => {
+    console.log(response);
     courseList.value = response.rows;
     total.value = response.total;
     loading.value = false;
@@ -266,7 +281,8 @@ function reset() {
     learningStyle: null,
     info: null,
     createTime: null,
-    updateTime: null
+    updateTime: null,
+    avator: null
   };
   proxy.resetForm("courseRef");
 }

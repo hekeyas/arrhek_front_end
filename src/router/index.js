@@ -83,6 +83,11 @@ export const constantRoutes = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
+  },
+  {
+    path: '/detail/:id',
+    name: 'Detail',
+    component: () => import('@/views/course/detail/index.vue')
   }
 ]
 

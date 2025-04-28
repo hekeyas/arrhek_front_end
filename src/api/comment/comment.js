@@ -9,6 +9,15 @@ export function listComment(query) {
   })
 }
 
+//根据用户id查询课程评论列表
+export function listCommentByUserId(query, userId) {
+  return request({
+    url: '/comment/comment/listByUserId/'+userId,
+    method: 'get',
+    params: query
+  })
+}
+
 // 查询课程评论详细
 export function getComment(commentId) {
   return request({
