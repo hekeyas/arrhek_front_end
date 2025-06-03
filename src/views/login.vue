@@ -1,7 +1,7 @@
 <template>
   <div class="login">
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
-      <h3 class="title">若依后台管理系统</h3>
+      <h3 class="title">欢迎登陆学智个性化长期学习规划平台</h3>
       <el-form-item prop="username">
         <el-input
           v-model="loginForm.username"
@@ -59,7 +59,7 @@
     </el-form>
     <!--  底部  -->
     <div class="el-login-footer">
-      <span>Copyright © 2018-2023 ruoyi.vip All Rights Reserved.</span>
+      <span>欢迎登陆学智个性化长期学习规划平台</span>
     </div>
   </div>
 </template>

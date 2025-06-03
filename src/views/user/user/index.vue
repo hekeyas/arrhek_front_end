@@ -2,57 +2,27 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="用户账号" prop="userName">
-        <el-input
-          v-model="queryParams.userName"
-          placeholder="请输入用户账号"
-          clearable
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.userName" placeholder="请输入用户账号" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="用户昵称" prop="nickName">
-        <el-input
-          v-model="queryParams.nickName"
-          placeholder="请输入用户昵称"
-          clearable
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.nickName" placeholder="请输入用户昵称" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="用户性别" prop="sex">
         <el-select v-model="queryParams.sex" placeholder="请选择用户性别" clearable>
-          <el-option
-            v-for="dict in sys_user_sex"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
+          <el-option v-for="dict in sys_user_sex" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="年龄" prop="age">
-        <el-input
-          v-model="queryParams.age"
-          placeholder="请输入年龄"
-          clearable
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.age" placeholder="请输入年龄" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="学习目标" prop="learningGoal">
         <el-select v-model="queryParams.learningGoal" placeholder="请选择学习目标" clearable>
-          <el-option
-            v-for="dict in learning_goal"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
+          <el-option v-for="dict in learning_goal" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="学习风格" prop="learningStyle">
         <el-select v-model="queryParams.learningStyle" placeholder="请选择学习风格" clearable>
-          <el-option
-            v-for="dict in learning_style"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
+          <el-option v-for="dict in learning_style" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -63,42 +33,19 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="Plus"
-          @click="handleAdd"
-          v-hasPermi="['user:user:add']"
-        >新增</el-button>
+        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['user:user:add']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="Edit"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['user:user:edit']"
-        >修改</el-button>
+        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
+          v-hasPermi="['user:user:edit']">修改</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="Delete"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['user:user:remove']"
-        >删除</el-button>
+        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
+          v-hasPermi="['user:user:remove']">删除</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="Download"
-          @click="handleExport"
-          v-hasPermi="['user:user:export']"
-        >导出</el-button>
+        <el-button type="warning" plain icon="Download" @click="handleExport"
+          v-hasPermi="['user:user:export']">导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
@@ -110,7 +57,7 @@
       <el-table-column label="用户昵称" align="center" prop="nickName" />
       <el-table-column label="用户性别" align="center" prop="sex">
         <template #default="scope">
-          <dict-tag :options="sys_user_sex" :value="scope.row.sex"/>
+          <dict-tag :options="sys_user_sex" :value="scope.row.sex" />
         </template>
       </el-table-column>
       <el-table-column label="帐号状态" align="center" prop="status" />
@@ -118,29 +65,27 @@
       <el-table-column label="年龄" align="center" prop="age" />
       <el-table-column label="学习目标" align="center" prop="learningGoal">
         <template #default="scope">
-          <dict-tag :options="learning_goal" :value="scope.row.learningGoal"/>
+          <dict-tag :options="learning_goal" :value="scope.row.learningGoal" />
         </template>
       </el-table-column>
       <el-table-column label="学习风格" align="center" prop="learningStyle">
         <template #default="scope">
-          <dict-tag :options="learning_style" :value="scope.row.learningStyle"/>
+          <dict-tag :options="learning_style" :value="scope.row.learningStyle" />
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['user:user:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['user:user:remove']">删除</el-button>
+          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+            v-hasPermi="['user:user:edit']">修改</el-button>
+          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
+            v-hasPermi="['user:user:remove']">删除</el-button>
+          <el-button link type="primary" icon="user" @click="$router.push({ path: '/portrait' })">画像</el-button>
         </template>
       </el-table-column>
     </el-table>
-    
-    <pagination
-      v-show="total>0"
-      :total="total"
-      v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize"
-      @pagination="getList"
-    />
+
+    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize"
+      @pagination="getList" />
 
     <!-- 添加或修改用户信息对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
@@ -153,12 +98,8 @@
         </el-form-item>
         <el-form-item label="用户性别" prop="sex">
           <el-select v-model="form.sex" placeholder="请选择用户性别">
-            <el-option
-              v-for="dict in sys_user_sex"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-            ></el-option>
+            <el-option v-for="dict in sys_user_sex" :key="dict.value" :label="dict.label"
+              :value="dict.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -169,22 +110,14 @@
         </el-form-item>
         <el-form-item label="学习目标" prop="learningGoal">
           <el-select v-model="form.learningGoal" placeholder="请选择学习目标">
-            <el-option
-              v-for="dict in learning_goal"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-            ></el-option>
+            <el-option v-for="dict in learning_goal" :key="dict.value" :label="dict.label"
+              :value="dict.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="学习风格" prop="learningStyle">
           <el-select v-model="form.learningStyle" placeholder="请选择学习风格">
-            <el-option
-              v-for="dict in learning_style"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-            ></el-option>
+            <el-option v-for="dict in learning_style" :key="dict.value" :label="dict.label"
+              :value="dict.value"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -351,12 +284,12 @@ function submitForm() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _userIds = row.userId || ids.value;
-  proxy.$modal.confirm('是否确认删除用户信息编号为"' + _userIds + '"的数据项？').then(function() {
+  proxy.$modal.confirm('是否确认删除用户信息编号为"' + _userIds + '"的数据项？').then(function () {
     return delUser(_userIds);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+  }).catch(() => { });
 }
 
 /** 导出按钮操作 */

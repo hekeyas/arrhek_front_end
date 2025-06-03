@@ -1,39 +1,29 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="用户名" prop="userName">
+      <el-form-item label="课程ID" prop="courseId">
         <el-input
-          v-model="queryParams.userName"
-          placeholder="请输入评论用户名"
+          v-model="queryParams.courseId"
+          placeholder="请输入课程ID"
           clearable
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="课程编码" prop="courseId">
+      <el-form-item label="开始日期" prop="startDate">
+        <el-date-picker clearable
+          v-model="queryParams.startDate"
+          type="date"
+          value-format="YYYY-MM-DD"
+          placeholder="请选择开始日期">
+        </el-date-picker>
+      </el-form-item>
+      <el-form-item label="持续时间" prop="durationDays">
         <el-input
-          v-model="queryParams.courseCode"
-          placeholder="请输入评论课程编码"
+          v-model="queryParams.durationDays"
+          placeholder="请输入持续时间"
           clearable
           @keyup.enter="handleQuery"
         />
-      </el-form-item>
-      <el-form-item label="评分" prop="rating">
-        <el-input
-          v-model="queryParams.rating"
-          placeholder="请输入评分"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="删除标志" prop="delFlag">
-        <el-select v-model="queryParams.delFlag" placeholder="请选择删除标志" clearable>
-          <el-option
-            v-for="dict in sys_yes_no"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
-        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -48,7 +38,7 @@
           plain
           icon="Plus"
           @click="handleAdd"
-          v-hasPermi="['comment:comment:add']"
+          v-hasPermi="['arrangement:detail:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -58,7 +48,7 @@
           icon="Edit"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['comment:comment:edit']"
+          v-hasPermi="['arrangement:detail:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -68,7 +58,7 @@
           icon="Delete"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['comment:comment:remove']"
+          v-hasPermi="['arrangement:detail:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -77,28 +67,38 @@
           plain
           icon="Download"
           @click="handleExport"
-          v-hasPermi="['comment:comment:export']"
+          v-hasPermi="['arrangement:detail:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="commentList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="detailList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="评论ID" align="center" prop="commentId" />
-      <el-table-column label="评论用户名" align="center" prop="userName" />
-      <el-table-column label="评论课程编码" align="center" prop="courseId" />
-      <el-table-column label="评论内容" align="center" prop="content" />
-      <el-table-column label="评分" align="center" prop="rating" />
-      <el-table-column label="删除标志" align="center" prop="delFlag">
+      <el-table-column label="主键" align="center" prop="id" />
+      <el-table-column label="课程ID" align="center" prop="courseId" />
+      <el-table-column label="开始日期" align="center" prop="startDate" width="180">
         <template #default="scope">
-          <dict-tag :options="sys_yes_no" :value="scope.row.delFlag"/>
+          <span>{{ parseTime(scope.row.startDate, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="持续时间" align="center" prop="durationDays" />
+      <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
+        <template #default="scope">
+          <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="更新时间" align="center" prop="updatedAt" width="180">
+        <template #default="scope">
+          <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="状态" align="center" prop="status" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['comment:comment:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['comment:comment:remove']">删除</el-button>
+          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['arrangement:detail:edit']">修改</el-button>
+          <br />
+          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['arrangement:detail:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -111,9 +111,9 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改课程评论对话框 -->
+    <!-- 添加或修改学习规划安排详情对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="commentRef" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="detailRef" :model="form" :rules="rules" label-width="80px">
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -125,13 +125,13 @@
   </div>
 </template>
 
-<script setup name="Comment">
-import { listComment, getComment, delComment, addComment, updateComment } from "@/api/comment/comment";
+<script setup name="Detail">
+import { listDetail, getDetail, delDetail, addDetail, updateDetail } from "@/api/arrangement/detail";
+import { useRoute } from "vue-router";
 
 const { proxy } = getCurrentInstance();
-const { sys_yes_no } = proxy.useDict('sys_yes_no');
 
-const commentList = ref([]);
+const detailList = ref([]);
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -146,11 +146,11 @@ const data = reactive({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    userName: null,
-    courseCode: null,
-    content: null,
-    rating: null,
-    delFlag: null
+    planId: useRoute().query.planId,
+    courseId: null,
+    startDate: null,
+    durationDays: null,
+    status: null
   },
   rules: {
   }
@@ -158,11 +158,11 @@ const data = reactive({
 
 const { queryParams, form, rules } = toRefs(data);
 
-/** 查询课程评论列表 */
+/** 查询学习规划安排详情列表 */
 function getList() {
   loading.value = true;
-  listComment(queryParams.value).then(response => {
-    commentList.value = response.rows;
+  listDetail(queryParams.value).then(response => {
+    detailList.value = response.rows;
     total.value = response.total;
     loading.value = false;
   });
@@ -177,16 +177,17 @@ function cancel() {
 // 表单重置
 function reset() {
   form.value = {
-    commentId: null,
-    userName: null,
-    courseCode: null,
-    content: null,
-    rating: null,
-    createTime: null,
-    updateTime: null,
-    delFlag: null
+    id: null,
+    planId: null,
+    courseId: null,
+    planId: 1,
+    startDate: null,
+    durationDays: null,
+    createdAt: null,
+    updatedAt: null,
+    status: null
   };
-  proxy.resetForm("commentRef");
+  proxy.resetForm("detailRef");
 }
 
 /** 搜索按钮操作 */
@@ -203,7 +204,7 @@ function resetQuery() {
 
 // 多选框选中数据
 function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.commentId);
+  ids.value = selection.map(item => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
 }
@@ -212,32 +213,32 @@ function handleSelectionChange(selection) {
 function handleAdd() {
   reset();
   open.value = true;
-  title.value = "添加课程评论";
+  title.value = "添加学习规划安排详情";
 }
 
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
-  const _commentId = row.commentId || ids.value
-  getComment(_commentId).then(response => {
+  const _id = row.id || ids.value
+  getDetail(_id).then(response => {
     form.value = response.data;
     open.value = true;
-    title.value = "修改课程评论";
+    title.value = "修改学习规划安排详情";
   });
 }
 
 /** 提交按钮 */
 function submitForm() {
-  proxy.$refs["commentRef"].validate(valid => {
+  proxy.$refs["detailRef"].validate(valid => {
     if (valid) {
-      if (form.value.commentId != null) {
-        updateComment(form.value).then(response => {
+      if (form.value.id != null) {
+        updateDetail(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
         });
       } else {
-        addComment(form.value).then(response => {
+        addDetail(form.value).then(response => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           getList();
@@ -249,9 +250,9 @@ function submitForm() {
 
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const _commentIds = row.commentId || ids.value;
-  proxy.$modal.confirm('是否确认删除课程评论编号为"' + _commentIds + '"的数据项？').then(function() {
-    return delComment(_commentIds);
+  const _ids = row.id || ids.value;
+  proxy.$modal.confirm('是否确认删除学习规划安排详情编号为"' + _ids + '"的数据项？').then(function() {
+    return delDetail(_ids);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
@@ -260,9 +261,9 @@ function handleDelete(row) {
 
 /** 导出按钮操作 */
 function handleExport() {
-  proxy.download('comment/comment/export', {
+  proxy.download('arrangement/detail/export', {
     ...queryParams.value
-  }, `comment_${new Date().getTime()}.xlsx`)
+  }, `detail_${new Date().getTime()}.xlsx`)
 }
 
 getList();

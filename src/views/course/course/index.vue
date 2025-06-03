@@ -2,56 +2,26 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="课程编码" prop="code">
-        <el-input
-          v-model="queryParams.code"
-          placeholder="请输入课程编码"
-          clearable
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.code" placeholder="请输入课程编码" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="课程分类" prop="learningGoal">
         <el-select v-model="queryParams.learningGoal" placeholder="请选择课程分类" clearable>
-          <el-option
-            v-for="dict in learning_goal"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
+          <el-option v-for="dict in learning_goal" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="课程名称" prop="name">
-        <el-input
-          v-model="queryParams.name"
-          placeholder="请输入课程名称"
-          clearable
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.name" placeholder="请输入课程名称" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="价格" prop="price">
-        <el-input
-          v-model="queryParams.price"
-          placeholder="请输入价格"
-          clearable
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.price" placeholder="请输入价格" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="教学风格" prop="learningStyle">
         <el-select v-model="queryParams.learningStyle" placeholder="请选择教学风格" clearable>
-          <el-option
-            v-for="dict in learning_style"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
+          <el-option v-for="dict in learning_style" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="课程介绍" prop="info">
-        <el-input
-          v-model="queryParams.info"
-          placeholder="请输入课程介绍"
-          clearable
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.info" placeholder="请输入课程介绍" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -61,42 +31,19 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="Plus"
-          @click="handleAdd"
-          v-hasPermi="['course:course:add']"
-        >新增</el-button>
+        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['course:course:add']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="Edit"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['course:course:edit']"
-        >修改</el-button>
+        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
+          v-hasPermi="['course:course:edit']">修改</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="Delete"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['course:course:remove']"
-        >删除</el-button>
+        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
+          v-hasPermi="['course:course:remove']">删除</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="Download"
-          @click="handleExport"
-          v-hasPermi="['course:course:export']"
-        >导出</el-button>
+        <el-button type="warning" plain icon="Download" @click="handleExport"
+          v-hasPermi="['course:course:export']">导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
@@ -107,14 +54,14 @@
       <el-table-column label="课程编码" align="center" prop="code" />
       <el-table-column label="课程分类" align="center" prop="learningGoal">
         <template #default="scope">
-          <dict-tag :options="learning_goal" :value="scope.row.learningGoal"/>
+          <dict-tag :options="learning_goal" :value="scope.row.learningGoal" />
         </template>
       </el-table-column>
       <el-table-column label="课程名称" align="center" prop="name" />
       <el-table-column label="价格" align="center" prop="price" />
       <el-table-column label="教学风格" align="center" prop="learningStyle">
         <template #default="scope">
-          <dict-tag :options="learning_style" :value="scope.row.learningStyle"/>
+          <dict-tag :options="learning_style" :value="scope.row.learningStyle" />
         </template>
       </el-table-column>
       <el-table-column label="课程介绍" align="center" prop="info" />
@@ -130,30 +77,25 @@
       </el-table-column>
       <el-table-column label="课程图片" align="center" prop="avator" width="100">
         <template #default="scope">
-          <image-preview :src="scope.row.avator" :width="50" :height="50"/>
+          <image-preview :src="scope.row.avator" :width="50" :height="50" />
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" style="width: 80px; text-align: center;"
             @click="handleUpdate(scope.row)" v-hasPermi="['course:course:edit']">修改</el-button>
-          <br/>
+          <br />
           <el-button link type="primary" icon="Delete" style="width: 80px; text-align: center;"
             @click="handleDelete(scope.row)" v-hasPermi="['course:course:remove']">删除</el-button>
-          <br/>
+          <br />
           <el-button link type="primary" icon="View" style="width: 80px; text-align: center;"
-            @click="$router.push({ path: '/detail', query: { id: scope.row.id } })">详情</el-button>
+            @click="$router.push({ path: '/course/detail', query: { id: scope.row.id } })">详情</el-button>
         </template>
       </el-table-column>
     </el-table>
-    
-    <pagination
-      v-show="total>0"
-      :total="total"
-      v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize"
-      @pagination="getList"
-    />
+
+    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize"
+      @pagination="getList" />
 
     <!-- 添加或修改课程管理对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
@@ -163,12 +105,8 @@
         </el-form-item>
         <el-form-item label="课程分类" prop="learningGoal">
           <el-select v-model="form.learningGoal" placeholder="请选择课程分类">
-            <el-option
-              v-for="dict in learning_goal"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-            ></el-option>
+            <el-option v-for="dict in learning_goal" :key="dict.value" :label="dict.label"
+              :value="dict.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="课程名称" prop="name">
@@ -179,19 +117,15 @@
         </el-form-item>
         <el-form-item label="教学风格" prop="learningStyle">
           <el-select v-model="form.learningStyle" placeholder="请选择教学风格">
-            <el-option
-              v-for="dict in learning_style"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-            ></el-option>
+            <el-option v-for="dict in learning_style" :key="dict.value" :label="dict.label"
+              :value="dict.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="课程介绍" prop="info">
           <el-input v-model="form.info" placeholder="请输入课程介绍" />
         </el-form-item>
         <el-form-item label="课程图片" prop="avator">
-          <image-upload v-model="form.avator"/>
+          <image-upload v-model="form.avator" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -348,12 +282,12 @@ function submitForm() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _ids = row.id || ids.value;
-  proxy.$modal.confirm('是否确认删除课程管理编号为"' + _ids + '"的数据项？').then(function() {
+  proxy.$modal.confirm('是否确认删除课程管理编号为"' + _ids + '"的数据项？').then(function () {
     return delCourse(_ids);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+  }).catch(() => { });
 }
 
 /** 导出按钮操作 */

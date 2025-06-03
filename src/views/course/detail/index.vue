@@ -34,6 +34,25 @@
             </el-row>
         </el-card>
         <el-card class="box-card">
+            <!-- 在第一个 el-card 中添加学习进度部分 -->
+            <el-form-item label="学习进度">
+                <div class="progress-container">
+                    <el-slider v-model="learningProgress" :format-tooltip="formatProgressTooltip"
+                        @change="handleProgressChange" :disabled="!canUpdateProgress" />
+                    <div class="progress-info">
+                        <el-tag :type="getProgressTagType" size="small">
+                            {{ formatProgress(learningProgress) }}
+                        </el-tag>
+                        <el-button type="primary" size="small" @click="saveProgress" :loading="savingProgress"
+                            :disabled="!progressChanged">
+                            保存进度
+                        </el-button>
+                    </div>
+                </div>
+            </el-form-item>
+        </el-card>
+
+        <el-card class="box-card">
             <div slot="header" class="clearfix">
                 <span>课程评论</span>
             </div>
@@ -124,6 +143,54 @@ const course = ref({
 });
 
 
+// 学习进度相关的响应式变量
+const learningProgress = ref(40);
+const originalProgress = ref(40);
+const savingProgress = ref(false);
+const canUpdateProgress = ref(true); // 是否可以更新进度
+
+// 判断进度是否发生变化
+const progressChanged = computed(() => {
+    return learningProgress.value !== originalProgress.value;
+});
+
+// 获取进度标签类型
+const getProgressTagType = computed(() => {
+    const progress = learningProgress.value;
+    if (progress >= 100) return 'success';
+    if (progress >= 60) return 'warning';
+    return 'info';
+});
+
+// 格式化进度显示
+const formatProgress = (progress) => {
+    return `已完成 ${progress}%`;
+};
+
+// 格式化进度提示
+const formatProgressTooltip = (progress) => {
+    return `${progress}%`;
+};
+
+// 处理进度变化
+const handleProgressChange = (value) => {
+    learningProgress.value = value;
+};
+
+// 保存进度
+const saveProgress = async () => {
+    savingProgress.value = true;
+    setTimeout(() => {
+        ElMessage.success('进度保存成功');
+        originalProgress.value = learningProgress.value;
+        savingProgress.value = false;
+    }, 1000); // 模拟保存延迟
+
+
+};
+
+
+
 
 
 const courseId = useRoute().query.id; // 示例课程ID，可根据实际需求动态传入
@@ -143,6 +210,7 @@ function fetchCourseDetail() {
 }
 
 function handleAdd() {
+    console.log(userStore.id);
     if (!personal_comments.value.content || personal_comments.value.rating === 0) {
         ElMessage.error("请填写完整的评论内容和评分！");
         return;
@@ -182,6 +250,13 @@ function handleAdd() {
 </script>
 
 <style scoped>
+/* 修改现有样式 */
+.app-container {
+    padding: 20px;
+    /* 添加以下属性 */
+    height: 100%;
+    overflow-y: auto;
+}
 .course-detail-form {
     padding: 20px;
     background-color: #fff;
